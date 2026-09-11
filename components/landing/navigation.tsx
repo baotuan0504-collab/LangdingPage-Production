@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, QrCode } from "lucide-react";
+import { QrModal } from "@/components/landing/qr-modal";
 
 const navLinks = [
   { name: "Capabilities",  href: "#features"      },
@@ -15,6 +16,7 @@ const navLinks = [
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,7 @@ export function Navigation() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
 
   return (
     <header
@@ -65,7 +68,19 @@ export function Navigation() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => setIsQrModalOpen(true)}
+              className={`p-2 rounded-full border transition-all duration-500 flex items-center justify-center ${
+                isScrolled 
+                  ? "border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10" 
+                  : "border-cyan-400/40 text-cyan-300 hover:bg-cyan-400/20 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+              }`}
+              title="Quét mã QR Website"
+            >
+              <QrCode className="w-4 h-4" />
+            </button>
+
             <a href="#" className={`transition-all duration-500 ${isScrolled ? "text-xs text-foreground/70 hover:text-foreground" : "text-sm text-white/70 hover:text-white"}`}>
               Sign in
             </a>
@@ -120,6 +135,17 @@ export function Navigation() {
                 {link.name}
               </a>
             ))}
+
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsQrModalOpen(true);
+              }}
+              className="flex items-center gap-3 text-2xl font-display text-cyan-400 hover:text-cyan-300 transition-colors pt-2"
+            >
+              <QrCode className="w-6 h-6" />
+              Mã QR Website
+            </button>
           </div>
           
           {/* Bottom CTAs */}
@@ -146,6 +172,9 @@ export function Navigation() {
           </div>
         </div>
       </div>
+
+      <QrModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
     </header>
+
   );
 }
