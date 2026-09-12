@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { QrCode, Copy, Check, Download, ExternalLink, Sparkles, X, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,20 @@ const COLOR_THEMES = [
   { name: "Monochrome", fg: "#ffffff", bg: "#09090b", border: "border-white/20", glow: "shadow-[0_0_25px_rgba(255,255,255,0.15)]" },
 ];
 
-export function QrModal({ isOpen, onClose, url = "https://langding-page-production.vercel.app/" }: QrModalProps) {
+export function QrModal({ isOpen, onClose, url }: QrModalProps) {
   const [copied, setCopied] = useState(false);
   const [activeTheme, setActiveTheme] = useState(0);
   const [isScanning, setIsScanning] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState(url || "https://khecare.vercel.app/");
   const qrRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (url) {
+      setCurrentUrl(url);
+    } else if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.origin + "/");
+    }
+  }, [url]);
 
   if (!isOpen) return null;
 
@@ -30,13 +39,14 @@ export function QrModal({ isOpen, onClose, url = "https://langding-page-producti
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(currentUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy", err);
     }
   };
+
 
   const handleDownloadPNG = () => {
     if (!qrRef.current) return;
@@ -126,7 +136,7 @@ export function QrModal({ isOpen, onClose, url = "https://langding-page-producti
 
             {/* QR Code SVG */}
             <QRCodeSVG
-              value={url}
+              value={currentUrl}
               size={210}
               bgColor={currentTheme.bg}
               fgColor={currentTheme.fg}
@@ -184,7 +194,7 @@ export function QrModal({ isOpen, onClose, url = "https://langding-page-producti
         {/* URL Box */}
         <div className="p-3 bg-zinc-900/80 border border-white/10 rounded-2xl mb-6 flex items-center justify-between gap-2">
           <div className="truncate text-xs font-mono text-zinc-300 pl-1">
-            {url}
+            {currentUrl}
           </div>
           <Button
             size="sm"
@@ -217,7 +227,7 @@ export function QrModal({ isOpen, onClose, url = "https://langding-page-producti
           </Button>
 
           <a 
-            href={url} 
+            href={currentUrl} 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-full"
